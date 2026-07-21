@@ -1,95 +1,95 @@
-/**
-PLAN:
-generate random number 0, 1, or 2
-if 0, return "rock"
-if 1, return "paper"
-if 2, return "scissors"
-*/
+let humanScore = 0;
+let computerScore = 0;
+let gameActive = true;
+
+function printOutput(out) {
+    const text = document.createElement("p");
+    text.textContent = out;
+
+    const div = document.querySelector(".results");
+    div.appendChild(text);
+}
+
+
+function updateScore(team) {
+    let newScore = 0;
+    switch(team) {
+        case "human": {
+            humanScore += 1;
+            newScore = humanScore;
+            break;
+        }
+        case "computer": {
+            computerScore += 1;
+            newScore = computerScore;
+            break;
+        }
+    }
+    const counter = document.querySelector(`.${team}.score`);
+    counter.textContent = String(newScore);
+    return Math.max(humanScore, computerScore) >= 5;
+} 
+
+
 function getComputerChoice() {
     let num = Math.floor(Math.random() * 3)
     let output = ['rock','paper','scissors'][num]
     return output
 }
 
-/**
-PLAN:
-print "rock, paper, or scissors?"
-record input
-trim leading/trailing space
-lowercase input
-return guess
-*/
-function getHumanChoice() {
-    let guess = prompt("Rock, paper, or scissors?");
-    guess = guess.trim().toLowerCase();
-    return guess
-}
 
+function playRound(humanChoice) {
+    if (!gameActive) {
+        return;
+    }
+    let computerChoice = getComputerChoice();
+    let isGameOver = false;
 
+    if (computerChoice === humanChoice){
+        printOutput(`Tie! You both guessed ${computerChoice}`);
+    } else if (humanChoice === "rock" && computerChoice === "scissors"
+            || humanChoice === "paper" && computerChoice === "rock"
+            || humanChoice === "scissors" && computerChoice === "paper") {
+        printOutput(`You win! ${humanChoice} beats ${computerChoice}`);
+        isGameOver = updateScore("human");
+    } else {
+        printOutput(`You lose! ${computerChoice} beats ${humanChoice}`);
+        isGameOver = updateScore("computer");
+    }
 
-/**
- * PLAN:
- * create playRound function in the playGame scope
- * create humanScore, computerScore
- * call playRound 5 times
- * if humanScore > computerScore, print win message
- * if humanScore < computerScore, print loss message
- * if humanScore == computerScore, print tie message
- */
-function playGame() {
-
-    /**
-     * PLAN:
-     * run getComputerChoice, save output
-     * run getPlayerChoice, save output
-     * for each possible outcome, increment correct score
-     *  check equality for ties
-     *  check 3 player-winning cases
-     *  use else case to catch all player-losing cases
-     */
-    function playRound() {
-        let computerChoice = getComputerChoice();
-        let humanChoice = getHumanChoice();
-
-        if (computerChoice === humanChoice){
-            console.log(`Tie! You both guessed ${computerChoice}`);
-        } else if (humanChoice === "rock" && computerChoice === "scissors"
-                || humanChoice === "paper" && computerChoice === "rock"
-                || humanChoice === "scissors" && computerChoice === "paper") {
-            console.log(`You win! ${humanChoice} beats ${computerChoice}`);
-            humanScore++;
+    if (isGameOver) {
+        gameActive = false;
+        const result = document.querySelector(".final-results");
+        if (humanScore > computerScore) {
+            result.textContent = "You Win!!!";
         } else {
-            console.log(`You lose! ${computerChoice} beats ${humanChoice}`);
-            computerScore++;
+            result.textContent = "You Lose...";
         }
     }
-
-    let humanScore = 0;
-    let computerScore = 0;
-    playRound();
-    playRound();
-    playRound();
-    playRound();
-    playRound();
-
-    if (humanScore > computerScore) {
-        console.log(`You win the whole game ${humanScore}:${computerScore}!`);
-    } else if (humanScore < computerScore) {
-        console.log(`You lost the whole game ${humanScore}:${computerScore}...`);
-    } else {
-        console.log(`You tied the game, both with ${humanScore} points.`);
-    }
 }
 
-playGame();
-
-let button = document.querySelector(".play");
-button.addEventListener("click", playGame)
 
 
-// button = document.querySelector(".testComp");
-// button.addEventListener("click", ()=>{console.log(getComputerChoice())});
 
-// button = document.querySelector(".testGuess");
-// button.addEventListener("click", ()=>{console.log(getHumanChoice())});
+const buttons = document.querySelectorAll(".button");
+buttons.forEach((button) => {
+    button.addEventListener("click", () => 
+        playRound(button.textContent.toLowerCase()));
+})
 
+const restart = document.querySelector(".restart > button");
+restart.addEventListener("click", () => {
+    humanScore = 0;
+    computerScore = 0;
+    gameActive = true;
+
+    const scores = document.querySelectorAll(".score");
+    scores.forEach((score) => score.textContent = "0");
+
+    const resultLog = document.querySelectorAll(".results > p");
+    resultLog.forEach((log) => log.remove());
+
+    const finalResult = document.querySelector(".final-results");
+    finalResult.textContent = "Rock Paper Scissors";
+    
+})
